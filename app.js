@@ -58,8 +58,8 @@ class Museu extends Puntinteres {
 
 class Mapa {
     #map;
-    constructor() {
-        let mapCenter = [41.3851, 2.1734]; // Coordinates for Barcelona, Spain  
+    constructor(lat,lon) {
+        let mapCenter = [lat, lon]; // Coordinates for Barcelona, Spain  
         let zoomLevel = 13; 
         let map = L.map('map').setView(mapCenter, zoomLevel);
         const tileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OpenStreetMap contributors' }); tileLayer.addTo(map);
@@ -91,10 +91,11 @@ class Mapa {
         }
     }
 }
-
-//Applicació
-const mapa = new Mapa()
-
+//APP
+const mapa = new Mapa(41.3851,2.1734)
+//Menu tipus
+let tipusSet = new Set();
+const menutipus = document.getElementById("tipus")
 
 //Fitxer CSV
 const dragarea = document.getElementById("draganddrop")
@@ -110,8 +111,7 @@ dragarea.addEventListener('drop', (e) => {
     }
 });
 
-
-//Bandera del pais
+//Bandera del pais i latitud i longitud
 fetch("https://restcountries.com/v3.1/alpha/ES")
     .then(function (response) {
         return response.json()
@@ -119,6 +119,6 @@ fetch("https://restcountries.com/v3.1/alpha/ES")
     .then(function (dada) {
         console.log(dada)
         document.getElementById("pais").src = dada[0].flags.png
-        latitud = dada[0].latlng[0]
-        longitud = dada[0].latlng[1]
+        let latitud = dada[0].latlng[0]
+        let longitud = dada[0].latlng[1]
     })

@@ -1,0 +1,5 @@
+pais;codi;ciutat;tipus;nom;direcció;latitud;longitud;horaris;preu;descripcio;puntuacio;moneda
+Espanya;ESP;Barcelona;Atraccio;Park Güell;Carrer d'Olot, s/n;41.4135;2.1525;08:00-21:30;10.0;Parc amb obres de Gaudí i vistes espectaculars de la ciutat.;4.7;€
+Espanya;ESP;Barcelona;Espai;Plaça de Catalunya;Plaça de Catalunya;41.3870;2.1686;24/7;0.0;Plaça central de Barcelona, punt de trobada i zona comercial.;4.4;€
+Espanya;ESP;Barcelona;Museu;Museu Picasso;Carrer Montcada, 15-23;41.3852;2.1807;09:00-19:00;12.0;Museu dedicat a les obres de Pablo Picasso.;4.7;€
+
