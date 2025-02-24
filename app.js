@@ -98,18 +98,28 @@ let tipusSet = new Set();
 const menutipus = document.getElementById("tipus")
 
 //Fitxer CSV
-const dragarea = document.getElementById("draganddrop")
-dragarea.addEventListener('drop', (e) => {
-    const files = e.dataTransfer.files;
-    if (files.length > 0) {
+const dropzone = document.getElementById("draganddrop")
+dropzone.addEventListener("dragover",function(event){
+    event.preventDefault()
+    console.log("dragover")
+})
+dropzone.addEventListener("drop",function(event){
+    event.preventDefault()
+    const files = event.dataTransfer.files
+    loadfile(files)
+})
+
+const loadfile = function(files){
+    if(files && files.length>0){
         const file = files[0];
-        if (file.type === 'text/csv') {
-            alert("CSV carregat correctament")
-        } else {
-            alert("NO es un fitxer CSV")
+        const extensio = file.name.split(".")[1]
+        if(extensio.toLowerCase()==="csv"){
+            console.log("El fitxer te un format correcte")
+        }else{
+            alert("El fitxer no te un format correcte")
         }
     }
-});
+}
 
 //Bandera del pais i latitud i longitud
 fetch("https://restcountries.com/v3.1/alpha/ES")
@@ -117,7 +127,6 @@ fetch("https://restcountries.com/v3.1/alpha/ES")
         return response.json()
     })
     .then(function (dada) {
-        console.log(dada)
         document.getElementById("pais").src = dada[0].flags.png
         let latitud = dada[0].latlng[0]
         let longitud = dada[0].latlng[1]

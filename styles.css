@@ -19,6 +19,9 @@ body{
 }
 #draganddrop{
     height: 60px;
-    border: 1px solid black;
+    border: 1px dashed black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
-#map { height: 700px;width: 100%;}
+#map { height: 700px;width: 80%;}
