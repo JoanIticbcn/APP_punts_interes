@@ -11,18 +11,7 @@ class Puntinteres {
         this.latitud = latitud
         this.longitud = longitud
         this.puntuacio = puntuacio
-    }
-    get id() {
-        return this.id
-    }
-    set id(valor) {
-        this.id = valor
-    }
-    get esManual() {
-        return this.esManual
-    }
-    set esManual(valor) {
-        this.esManual = valor
+        Puntinteres.totalTasques++
     }
     static obtenirtotalElements() {
         return Puntinteres.totalTasques
@@ -58,9 +47,9 @@ class Museu extends Puntinteres {
 
 class Mapa {
     #map;
-    constructor(lat,lon) {
+    constructor(lat, lon) {
         let mapCenter = [lat, lon]; // Coordinates for Barcelona, Spain  
-        let zoomLevel = 13; 
+        let zoomLevel = 13;
         let map = L.map('map').setView(mapCenter, zoomLevel);
         const tileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OpenStreetMap contributors' }); tileLayer.addTo(map);
     }
@@ -92,55 +81,122 @@ class Mapa {
     }
 }
 //APP
-const mapa = new Mapa(41.3851,2.1734)
+const mapa = new Mapa(41.3851, 2.1734)
+let espai;
+let atraccio;
+let museu;
 //Menu tipus
 let tipusSet = new Set();
 const menutipus = document.getElementById("tipus")
 
 //Fitxer CSV
 const dropzone = document.getElementById("draganddrop")
-dropzone.addEventListener("dragover",function(event){
+dropzone.addEventListener("dragover", function (event) {
     event.preventDefault()
     console.log("dragover")
 })
-dropzone.addEventListener("drop",function(event){
+dropzone.addEventListener("drop", function (event) {
     event.preventDefault()
     const files = event.dataTransfer.files
     loadfile(files)
 })
 
-const loadfile = function(files){
-    if(files && files.length>0){
+const loadfile = function (files) {
+    if (files && files.length > 0) {
         const file = files[0];
         const extensio = file.name.split(".")[1]
-        if(extensio.toLowerCase()==="csv"){
+        if (extensio.toLowerCase() === "csv") {
             console.log("El fitxer te un format correcte")
             const reader = new FileReader()
             reader.onload = function (event) {
                 const text = event.target.result;
                 const rows = text.split("\n").map(row => row.split(";"));
                 console.log("Parsed CSV:", rows);
+                //Menu tipus
                 tipusSet.add(rows[1][3])
                 tipusSet.add(rows[2][3])
                 tipusSet.add(rows[3][3])
-                console.log(tipusSet)
-                for(let i=0;i<rows.length;i++){
-                    if(rows[i][3]=="Espai"){
-                        let espai = new Puntinteres()
+                tipusSet.forEach(value => {
+                    if (value == "Espai") {
+                        const tipusespai = document.createElement("option")
+                        tipusespai.value = value
+                        tipusespai.text = value
+                        menutipus.appendChild(tipusespai)
                     }
-                    if(rows[i][3]=="Atraccio"){
-                        let atraccio = new Atraccio()
+                    if (value == "Atraccio") {
+                        const tipusAtraccio = document.createElement("option")
+                        tipusAtraccio.value = value
+                        tipusAtraccio.text = value
+                        menutipus.appendChild(tipusAtraccio)
+
                     }
-                    if(rows[i][3]=="Museu"){
-                        let museu = new Museu()
+                    if (value == "Museu") {
+                        const tipusMuseu = document.createElement("option")
+                        tipusMuseu.value = value
+                        tipusMuseu.text = value
+                        menutipus.appendChild(tipusMuseu)
+
+                    }
+                })
+                //Creacio dels objectes
+                for (let i = 0; i < rows.length; i++) {
+                    if (rows[i][3] == "Espai") {
+                        espai = new Puntinteres(1, false, rows[i][2], rows[i][4], rows[i][5], rows[i][3], rows[i][6], rows[i][7], rows[i][11])
+                    }
+                    if (rows[i][3] == "Atraccio") {
+                        atraccio = new Atraccio(1, false, rows[i][2], rows[i][4], rows[i][5], rows[i][3], rows[i][6], rows[i][7], rows[i][11], rows[i][8], rows[i][9], rows[i][12])
+                    }
+                    if (rows[i][3] == "Museu") {
+                        museu = new Museu(1, false, rows[i][2], rows[i][4], rows[i][5], rows[i][3], rows[i][6], rows[i][7], rows[i][11], rows[i][8], rows[i][9], rows[i][10], rows[i][12])
                     }
                 }
+                console.log(espai, atraccio, museu)
+                renderitzarPuntsinteres(espai,atraccio,museu)
             };
             reader.readAsText(file);
-        }else{
+        } else {
             alert("El fitxer no te un format correcte")
         }
     }
+}
+
+function renderitzarPuntsinteres(espai,atraccio,museu){
+    const divResult = document.getElementById("llocsinteres")
+    divResult.innerHTML = ""
+    //Espai
+    const divEspai = document.createElement("div")
+    divEspai.textContent = espai.nom + " | " + espai.ciutat +" | "+"Tipus: "+espai.tipus
+    divEspai.className = "espai"
+    const botodel = document.createElement("button")
+    botodel.textContent = "delete"
+    botodel.addEventListener("click",function(){
+        
+    })
+    divEspai.appendChild(botodel)
+    divResult.appendChild(divEspai)
+    //Attracció
+    const divAtraccio = document.createElement("div")
+    divAtraccio.textContent = atraccio.nom + " | " + atraccio.ciutat +" | "+"Tipus: "+atraccio.tipus+" | "+"Horaris:"+atraccio.horaris+" Preu "+atraccio.preu+"€"
+    divAtraccio.className = "atraccio"
+    const btndel = document.createElement("button")
+    btndel.textContent = "delete"
+    btndel.addEventListener("click",function(){
+        
+    })
+    divAtraccio.appendChild(btndel)
+    divResult.appendChild(divAtraccio)
+    //Museu
+    const divMuseu = document.createElement("div")
+    divMuseu.textContent = museu.nom + " | " + museu.ciutat +" | "+"Tipus: "+museu.tipus+" | "+"Horaris:"+museu.horaris+" Preu "+museu.preu+"€"+" | Descripcio:"+museu.descripcio
+    divMuseu.className = "museu"
+    const butondel = document.createElement("button")
+    butondel.textContent = "delete"
+    butondel.addEventListener("click",function(){
+        
+    })
+    divMuseu.appendChild(butondel)
+    divResult.appendChild(divMuseu)
+    
 }
 
 //Bandera del pais i latitud i longitud
