@@ -115,6 +115,28 @@ const loadfile = function(files){
         const extensio = file.name.split(".")[1]
         if(extensio.toLowerCase()==="csv"){
             console.log("El fitxer te un format correcte")
+            const reader = new FileReader()
+            reader.onload = function (event) {
+                const text = event.target.result;
+                const rows = text.split("\n").map(row => row.split(";"));
+                console.log("Parsed CSV:", rows);
+                tipusSet.add(rows[1][3])
+                tipusSet.add(rows[2][3])
+                tipusSet.add(rows[3][3])
+                console.log(tipusSet)
+                for(let i=0;i<rows.length;i++){
+                    if(rows[i][3]=="Espai"){
+                        let espai = new Puntinteres()
+                    }
+                    if(rows[i][3]=="Atraccio"){
+                        let atraccio = new Atraccio()
+                    }
+                    if(rows[i][3]=="Museu"){
+                        let museu = new Museu()
+                    }
+                }
+            };
+            reader.readAsText(file);
         }else{
             alert("El fitxer no te un format correcte")
         }
