@@ -46,18 +46,18 @@ class Museu extends Puntinteres {
 }
 
 class Mapa {
-    #map;
+    map;
     constructor(lat, lon) {
         let mapCenter = [lat, lon]; // Coordinates for Barcelona, Spain  
         let zoomLevel = 13;
-        let map = L.map('map').setView(mapCenter, zoomLevel);
-        const tileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OpenStreetMap contributors' }); tileLayer.addTo(map);
+        this.map = L.map('map').setView(mapCenter, zoomLevel);
+        const tileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OpenStreetMap contributors' }); tileLayer.addTo(this.map);
     }
     mostrarPuntInicial() {
 
     }
-    mostrarPunt() {
-
+    mostrarPunt(latitud,longitud,nombre,direccio,puntuacio) {
+        L.marker([latitud,longitud]).addTo(this.map).bindPopup(nombre+" "+direccio+" "+puntuacio).openPopup();
     }
     borrarPunt() {
 
@@ -68,10 +68,10 @@ class Mapa {
                 let lat = position.coords.latitude;
                 let lng = position.coords.longitude;
                 // Coloca un marcador en la ubicación actual del usuario
-                L.marker([lat, lng]).addTo(map)
+                L.marker([lat, lng]).addTo(this.map)
                     .bindPopup("Estás aquí").openPopup();
                 // Centra el mapa en la ubicación actual
-                map.setView([lat, lng], 13);
+                this.map.setView([lat, lng], 13);
             }, function (error) {
                 console.error("Error en la geolocalización:", error);
             });
@@ -174,6 +174,7 @@ function renderitzarPuntsinteres(espai,atraccio,museu){
     })
     divEspai.appendChild(botodel)
     divResult.appendChild(divEspai)
+    mapa.mostrarPunt(espai.latitud,espai.longitud,espai.nom,espai.direccio,espai.puntuacio)
     //Attracció
     const divAtraccio = document.createElement("div")
     divAtraccio.textContent = atraccio.nom + " | " + atraccio.ciutat +" | "+"Tipus: "+atraccio.tipus+" | "+"Horaris:"+atraccio.horaris+" Preu "+atraccio.preu+"€"
@@ -185,6 +186,7 @@ function renderitzarPuntsinteres(espai,atraccio,museu){
     })
     divAtraccio.appendChild(btndel)
     divResult.appendChild(divAtraccio)
+    mapa.mostrarPunt(atraccio.latitud,atraccio.longitud,atraccio.nom,atraccio.direccio,atraccio.puntuacio)
     //Museu
     const divMuseu = document.createElement("div")
     divMuseu.textContent = museu.nom + " | " + museu.ciutat +" | "+"Tipus: "+museu.tipus+" | "+"Horaris:"+museu.horaris+" Preu "+museu.preu+"€"+" | Descripcio:"+museu.descripcio
@@ -196,6 +198,7 @@ function renderitzarPuntsinteres(espai,atraccio,museu){
     })
     divMuseu.appendChild(butondel)
     divResult.appendChild(divMuseu)
+    mapa.mostrarPunt(museu.latitud,museu.longitud,museu.nom,museu.direccio,museu.puntuacio)
     
 }
 
