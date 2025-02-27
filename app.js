@@ -56,11 +56,11 @@ class Mapa {
     mostrarPuntInicial() {
 
     }
-    mostrarPunt(latitud,longitud,nombre,direccio,puntuacio) {
-        L.marker([latitud,longitud]).addTo(this.map).bindPopup(nombre+" "+direccio+" "+puntuacio).openPopup();
+    mostrarPunt(latitud, longitud, nombre, direccio, puntuacio) {
+        L.marker([latitud, longitud]).addTo(this.map).bindPopup(nombre + " " + direccio + " " + puntuacio).openPopup();
     }
-    borrarPunt() {
-
+    borrarPunt(latitud,longitud) {
+        removeMarker(latitud,longitud,this.mapa)
     }
     getPosicioActual() {
         if (navigator.geolocation) {
@@ -80,11 +80,13 @@ class Mapa {
         }
     }
 }
+
 //APP
 const mapa = new Mapa(41.3851, 2.1734)
 let espai;
 let atraccio;
 let museu;
+
 //Menu tipus
 let tipusSet = new Set();
 const menutipus = document.getElementById("tipus")
@@ -100,6 +102,10 @@ dropzone.addEventListener("drop", function (event) {
     const files = event.dataTransfer.files
     loadfile(files)
 })
+
+let tipusespai;
+let tipusAtraccio;
+let tipusMuseu;
 
 const loadfile = function (files) {
     if (files && files.length > 0) {
@@ -118,20 +124,20 @@ const loadfile = function (files) {
                 tipusSet.add(rows[3][3])
                 tipusSet.forEach(value => {
                     if (value == "Espai") {
-                        const tipusespai = document.createElement("option")
+                        tipusespai = document.createElement("option")
                         tipusespai.value = value
                         tipusespai.text = value
                         menutipus.appendChild(tipusespai)
                     }
                     if (value == "Atraccio") {
-                        const tipusAtraccio = document.createElement("option")
+                        tipusAtraccio = document.createElement("option")
                         tipusAtraccio.value = value
                         tipusAtraccio.text = value
                         menutipus.appendChild(tipusAtraccio)
 
                     }
                     if (value == "Museu") {
-                        const tipusMuseu = document.createElement("option")
+                        tipusMuseu = document.createElement("option")
                         tipusMuseu.value = value
                         tipusMuseu.text = value
                         menutipus.appendChild(tipusMuseu)
@@ -151,7 +157,7 @@ const loadfile = function (files) {
                     }
                 }
                 console.log(espai, atraccio, museu)
-                renderitzarPuntsinteres(espai,atraccio,museu)
+                renderitzarPuntsinteres(espai, atraccio, museu)
             };
             reader.readAsText(file);
         } else {
@@ -160,47 +166,97 @@ const loadfile = function (files) {
     }
 }
 
-function renderitzarPuntsinteres(espai,atraccio,museu){
+function renderitzarPuntsinteres(espai, atraccio, museu) {
+    let total =0;
     const divResult = document.getElementById("llocsinteres")
     divResult.innerHTML = ""
-    //Espai
-    const divEspai = document.createElement("div")
-    divEspai.textContent = espai.nom + " | " + espai.ciutat +" | "+"Tipus: "+espai.tipus
-    divEspai.className = "espai"
-    const botodel = document.createElement("button")
-    botodel.textContent = "delete"
-    botodel.addEventListener("click",function(){
-        
-    })
-    divEspai.appendChild(botodel)
-    divResult.appendChild(divEspai)
-    mapa.mostrarPunt(espai.latitud,espai.longitud,espai.nom,espai.direccio,espai.puntuacio)
-    //Attracció
-    const divAtraccio = document.createElement("div")
-    divAtraccio.textContent = atraccio.nom + " | " + atraccio.ciutat +" | "+"Tipus: "+atraccio.tipus+" | "+"Horaris:"+atraccio.horaris+" Preu "+atraccio.preu+"€"
-    divAtraccio.className = "atraccio"
-    const btndel = document.createElement("button")
-    btndel.textContent = "delete"
-    btndel.addEventListener("click",function(){
-        
-    })
-    divAtraccio.appendChild(btndel)
-    divResult.appendChild(divAtraccio)
-    mapa.mostrarPunt(atraccio.latitud,atraccio.longitud,atraccio.nom,atraccio.direccio,atraccio.puntuacio)
-    //Museu
-    const divMuseu = document.createElement("div")
-    divMuseu.textContent = museu.nom + " | " + museu.ciutat +" | "+"Tipus: "+museu.tipus+" | "+"Horaris:"+museu.horaris+" Preu "+museu.preu+"€"+" | Descripcio:"+museu.descripcio
-    divMuseu.className = "museu"
-    const butondel = document.createElement("button")
-    butondel.textContent = "delete"
-    butondel.addEventListener("click",function(){
-        
-    })
-    divMuseu.appendChild(butondel)
-    divResult.appendChild(divMuseu)
-    mapa.mostrarPunt(museu.latitud,museu.longitud,museu.nom,museu.direccio,museu.puntuacio)
-    
+    if (espai) {
+        //Espai
+        const divEspai = document.createElement("div")
+        divEspai.textContent = espai.nom + " | " + espai.ciutat + " | " + "Tipus: " + espai.tipus
+        divEspai.className = "espai"
+        const botodel = document.createElement("button")
+        botodel.textContent = "delete"
+        botodel.addEventListener("click", function () {
+            let aux = confirm("Estas segur que vols borrar el punt d'interés?")
+            if (aux) {
+                renderitzarPuntsinteres(null, atraccio, museu)
+                mapa.borrarPunt(espai.latitud,espai.longitud)
+            }
+        })
+        divEspai.appendChild(botodel)
+        divResult.appendChild(divEspai)
+        mapa.mostrarPunt(espai.latitud, espai.longitud, espai.nom, espai.direccio, espai.puntuacio)
+        total++
+    }
+
+    if (atraccio) {
+        //Attracció
+        const divAtraccio = document.createElement("div")
+        divAtraccio.textContent = atraccio.nom + " | " + atraccio.ciutat + " | " + "Tipus: " + atraccio.tipus + " | " + "Horaris:" + atraccio.horaris + " Preu " + atraccio.preu + "€"
+        divAtraccio.className = "atraccio"
+        const btndel = document.createElement("button")
+        btndel.textContent = "delete"
+        btndel.addEventListener("click", function () {
+            let aux = confirm("Estas segur que vols borrar el punt d'interés?")
+            if (aux) {
+                renderitzarPuntsinteres(espai, null, museu)
+                mapa.borrarPunt(atraccio.latitud,atraccio.longitud)
+            }
+        })
+        divAtraccio.appendChild(btndel)
+        divResult.appendChild(divAtraccio)
+        mapa.mostrarPunt(atraccio.latitud, atraccio.longitud, atraccio.nom, atraccio.direccio, atraccio.puntuacio)
+        total++
+    }
+    if (museu) {
+        //Museu
+        const divMuseu = document.createElement("div")
+        divMuseu.textContent = museu.nom + " | " + museu.ciutat + " | " + "Tipus: " + museu.tipus + " | " + "Horaris:" + museu.horaris + " Preu " + museu.preu + "€" + " | Descripcio:" + museu.descripcio
+        divMuseu.className = "museu"
+        const butondel = document.createElement("button")
+        butondel.textContent = "delete"
+        butondel.addEventListener("click", function () {
+            let aux = confirm("Estas segur que vols borrar el punt d'interés?")
+            if (aux) {
+                renderitzarPuntsinteres(espai, atraccio, null)
+                mapa.borrarPunt(museu.latitud,museu.longitud)
+            }
+        })
+        divMuseu.appendChild(butondel)
+        divResult.appendChild(divMuseu)
+        mapa.mostrarPunt(museu.latitud, museu.longitud, museu.nom, museu.direccio, museu.puntuacio)
+        total++
+    }
+    document.getElementById("total").textContent = "Numero Total = "+total;
 }
+
+//Funcio auxiliar
+function removeMarker(lat, lng, map) {
+    map.eachLayer(function (layer) {
+        if (layer instanceof L.Marker) {
+            let markerLatLng = layer.getLatLng();
+            if (markerLatLng.lat === lat && markerLatLng.lng === lng) {
+                map.removeLayer(layer);
+            }
+        }
+    });
+}
+
+document.getElementById("Actualitzar").addEventListener("click",function(){
+    if(tipusespai.selected){
+        renderitzarPuntsinteres(espai,null,null)
+    }
+    if(tipusAtraccio.selected){
+        renderitzarPuntsinteres(null,atraccio,null)
+    }
+    if(tipusMuseu.selected){
+        renderitzarPuntsinteres(null,null,museu)
+    }
+    if(document.getElementById("tots").selected){
+        renderitzarPuntsinteres(espai,atraccio,museu)
+    }
+})
 
 //Bandera del pais i latitud i longitud
 fetch("https://restcountries.com/v3.1/alpha/ES")

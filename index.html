@@ -19,7 +19,7 @@
         <div>
             <label for="tipus">Tipus</label>
             <select name="tipus" id="tipus">
-                <option value="Tots">Tots</option>
+                <option value="Tots" id="tots">Tots</option>
             </select>
             <label for="Ordenacio">Ordenacio</label>
             <select name="Ordenacio" id="Ordenacio">
@@ -27,11 +27,12 @@
                 <option value="Descendent">Descendent</option>
             </select>
             <input type="text" id="filtrapertext" name="filtrapertext" placeholder="museu">
+            <button id="Actualitzar">Actualitzar</button>
         </div>
         <div id="llocsinteres">
             No hi ha informacio per mostrar
         </div>
-        <p>Numero total:</p>
+        <p id="total">Numero total:</p>
         <div id="draganddrop">
             Arrosega un fitxer CSV aqui per carregar la informacio
         </div>
