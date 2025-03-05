@@ -27,7 +27,7 @@ class Atraccio extends Puntinteres {
     }
 
     getPreuIva() {
-        return this.preu * 0.24;
+        return this.preu*1+this.preu*0.24;
     }
 }
 
@@ -41,14 +41,14 @@ class Museu extends Puntinteres {
     }
 
     getPreuIva() {
-        return this.preu * 0.24
+        return this.preu*1+this.preu*0.24;
     }
 }
 
 class Mapa {
     map;
     constructor(lat, lon) {
-        let mapCenter = [lat, lon]; // Coordinates for Barcelona, Spain  
+        let mapCenter = [lat, lon];
         let zoomLevel = 13;
         this.map = L.map('map').setView(mapCenter, zoomLevel);
         const tileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OpenStreetMap contributors' }); tileLayer.addTo(this.map);
@@ -81,18 +81,18 @@ class Mapa {
     }
 }
 
-//APP
+//Inicialitzem la app i posem la poscicio actual i definim els 3 espais
 const mapa = new Mapa(41.3851, 2.1734)
 mapa.getPosicioActual()
 let espai;
 let atraccio;
 let museu;
 
-//Menu tipus
+//Creem el set del Menu tipus
 let tipusSet = new Set();
 const menutipus = document.getElementById("tipus")
 
-//Fitxer CSV
+//Fitxer CSV funcions drag and drop
 const dropzone = document.getElementById("draganddrop")
 dropzone.addEventListener("dragover", function (event) {
     event.preventDefault()
@@ -103,7 +103,7 @@ dropzone.addEventListener("drop", function (event) {
     const files = event.dataTransfer.files
     loadfile(files)
 })
-//MenuTipus
+//Variables auxiliar del MenuTipus
 let tipusespai;
 let tipusAtraccio;
 let tipusMuseu;
@@ -112,6 +112,7 @@ const loadfile = function (files) {
     if (files && files.length > 0) {
         const file = files[0];
         const extensio = file.name.split(".")[1]
+        //Comprovem la extensio abans de contiunar
         if (extensio.toLowerCase() === "csv") {
             console.log("El fitxer te un format correcte")
             const reader = new FileReader()
@@ -119,7 +120,7 @@ const loadfile = function (files) {
                 const text = event.target.result;
                 const rows = text.split("\n").map(row => row.split(";"));
                 console.log("Parsed CSV:", rows);
-                //Menu tipus
+                //Creem els elements del Menu tipus
                 tipusSet.add(rows[1][3])
                 tipusSet.add(rows[2][3])
                 tipusSet.add(rows[3][3])
@@ -135,7 +136,6 @@ const loadfile = function (files) {
                         tipusAtraccio.value = value
                         tipusAtraccio.text = value
                         menutipus.appendChild(tipusAtraccio)
-
                     }
                     if (value == "Museu") {
                         tipusMuseu = document.createElement("option")
@@ -145,7 +145,7 @@ const loadfile = function (files) {
 
                     }
                 })
-                //Creacio dels objectes
+                //Creacio dels objectes espai atraccio i museu
                 for (let i = 0; i < rows.length; i++) {
                     if (rows[i][3] == "Espai") {
                         espai = new Puntinteres(1, false, rows[i][2], rows[i][4], rows[i][5], rows[i][3], rows[i][6], rows[i][7], rows[i][11])
@@ -157,7 +157,7 @@ const loadfile = function (files) {
                         museu = new Museu(1, false, rows[i][2], rows[i][4], rows[i][5], rows[i][3], rows[i][6], rows[i][7], rows[i][11], rows[i][8], rows[i][9], rows[i][10], rows[i][12])
                     }
                 }
-                console.log(espai, atraccio, museu)
+                //Renderitzem els objectes en la pagina
                 renderitzarPuntsinteres(espai, atraccio, museu)
             };
             reader.readAsText(file);
@@ -166,7 +166,7 @@ const loadfile = function (files) {
         }
     }
 }
-
+//Funció que renderitza els punts d'interés tant a la part lateral com posar els punts al mapa amb la funcio mapa.mostrarpunt
 function renderitzarPuntsinteres(espai, atraccio, museu) {
     let total =0;
     const divResult = document.getElementById("llocsinteres")
@@ -194,7 +194,7 @@ function renderitzarPuntsinteres(espai, atraccio, museu) {
     if (atraccio) {
         //Attracció
         const divAtraccio = document.createElement("div")
-        divAtraccio.textContent = atraccio.nom + " | " + atraccio.ciutat + " | " + "Tipus: " + atraccio.tipus + " | " + "Horaris:" + atraccio.horaris + " Preu " + atraccio.preu + "€"
+        divAtraccio.textContent = atraccio.nom + " | " + atraccio.ciutat + " | " + "Tipus: " + atraccio.tipus + " | " + "Horaris:" + atraccio.horaris + " Preu " + atraccio.getPreuIva() + "€"
         divAtraccio.className = "atraccio"
         const btndel = document.createElement("button")
         btndel.textContent = "delete"
@@ -213,7 +213,7 @@ function renderitzarPuntsinteres(espai, atraccio, museu) {
     if (museu) {
         //Museu
         const divMuseu = document.createElement("div")
-        divMuseu.textContent = museu.nom + " | " + museu.ciutat + " | " + "Tipus: " + museu.tipus + " | " + "Horaris:" + museu.horaris + " Preu " + museu.preu + "€" + " | Descripcio:" + museu.descripcio
+        divMuseu.textContent = museu.nom + " | " + museu.ciutat + " | " + "Tipus: " + museu.tipus + " | " + "Horaris:" + museu.horaris + " Preu " + museu.getPreuIva() + "€" + " | Descripcio:" + museu.descripcio
         divMuseu.className = "museu"
         const butondel = document.createElement("button")
         butondel.textContent = "delete"
@@ -270,6 +270,10 @@ document.getElementById("Ordenar").addEventListener("click",function(){
     }
 })
 
+document.getElementById("Netejar").addEventListener("click",function(){
+    document.getElementById("llocsinteres").innerHTML = ""
+})
+
 //Bandera del pais i latitud i longitud
 fetch("https://restcountries.com/v3.1/alpha/ES")
     .then(function (response) {
@@ -280,8 +284,11 @@ fetch("https://restcountries.com/v3.1/alpha/ES")
         let latitud = dada[0].latlng[0]
         let longitud = dada[0].latlng[1]
     })
+    .catch(function(error){
+        console.log(error)
+    })
 
-//Mode ASc
+//Renderitzar en Mode ASc
 function renderitzarPuntsinteresASC(espai, atraccio, museu) {
     let total =0;
     const divResult = document.getElementById("llocsinteres")
@@ -289,7 +296,7 @@ function renderitzarPuntsinteresASC(espai, atraccio, museu) {
     if (museu) {
         //Museu
         const divMuseu = document.createElement("div")
-        divMuseu.textContent = museu.nom + " | " + museu.ciutat + " | " + "Tipus: " + museu.tipus + " | " + "Horaris:" + museu.horaris + " Preu " + museu.preu + "€" + " | Descripcio:" + museu.descripcio
+        divMuseu.textContent = museu.nom + " | " + museu.ciutat + " | " + "Tipus: " + museu.tipus + " | " + "Horaris:" + museu.horaris + " Preu " + museu.getPreuIva() + "€" + " | Descripcio:" + museu.descripcio
         divMuseu.className = "museu"
         const butondel = document.createElement("button")
         butondel.textContent = "delete"
@@ -308,7 +315,7 @@ function renderitzarPuntsinteresASC(espai, atraccio, museu) {
     if (atraccio) {
         //Attracció
         const divAtraccio = document.createElement("div")
-        divAtraccio.textContent = atraccio.nom + " | " + atraccio.ciutat + " | " + "Tipus: " + atraccio.tipus + " | " + "Horaris:" + atraccio.horaris + " Preu " + atraccio.preu + "€"
+        divAtraccio.textContent = atraccio.nom + " | " + atraccio.ciutat + " | " + "Tipus: " + atraccio.tipus + " | " + "Horaris:" + atraccio.horaris + " Preu " + atraccio.getPreuIva() + "€"
         divAtraccio.className = "atraccio"
         const btndel = document.createElement("button")
         btndel.textContent = "delete"
@@ -348,7 +355,7 @@ function renderitzarPuntsinteresASC(espai, atraccio, museu) {
     
     document.getElementById("total").textContent = "Numero Total = "+total;
 }
-//Mode Desc
+//Renderitzar en Mode Desc
 function renderitzarPuntsinteresDesc(espai, atraccio, museu) {
     let total =0;
     const divResult = document.getElementById("llocsinteres")
@@ -376,7 +383,7 @@ function renderitzarPuntsinteresDesc(espai, atraccio, museu) {
     if (atraccio) {
         //Attracció
         const divAtraccio = document.createElement("div")
-        divAtraccio.textContent = atraccio.nom + " | " + atraccio.ciutat + " | " + "Tipus: " + atraccio.tipus + " | " + "Horaris:" + atraccio.horaris + " Preu " + atraccio.preu + "€"
+        divAtraccio.textContent = atraccio.nom + " | " + atraccio.ciutat + " | " + "Tipus: " + atraccio.tipus + " | " + "Horaris:" + atraccio.horaris + " Preu " + atraccio.getPreuIva() + "€"
         divAtraccio.className = "atraccio"
         const btndel = document.createElement("button")
         btndel.textContent = "delete"
@@ -395,7 +402,7 @@ function renderitzarPuntsinteresDesc(espai, atraccio, museu) {
     if (museu) {
         //Museu
         const divMuseu = document.createElement("div")
-        divMuseu.textContent = museu.nom + " | " + museu.ciutat + " | " + "Tipus: " + museu.tipus + " | " + "Horaris:" + museu.horaris + " Preu " + museu.preu + "€" + " | Descripcio:" + museu.descripcio
+        divMuseu.textContent = museu.nom + " | " + museu.ciutat + " | " + "Tipus: " + museu.tipus + " | " + "Horaris:" + museu.horaris + " Preu " + museu.getPreuIva() + "€" + " | Descripcio:" + museu.descripcio
         divMuseu.className = "museu"
         const butondel = document.createElement("button")
         butondel.textContent = "delete"
