@@ -87,7 +87,8 @@ mapa.getPosicioActual()
 let espai;
 let atraccio;
 let museu;
-
+//Array dels punts d'interés
+let puntsinteresArray = new Array()
 //Creem el set del Menu tipus
 let tipusSet = new Set();
 const menutipus = document.getElementById("tipus")
@@ -149,16 +150,19 @@ const loadfile = function (files) {
                 for (let i = 0; i < rows.length; i++) {
                     if (rows[i][3] == "Espai") {
                         espai = new Puntinteres(1, false, rows[i][2], rows[i][4], rows[i][5], rows[i][3], rows[i][6], rows[i][7], rows[i][11])
+                        puntsinteresArray.push(espai)
                     }
                     if (rows[i][3] == "Atraccio") {
                         atraccio = new Atraccio(1, false, rows[i][2], rows[i][4], rows[i][5], rows[i][3], rows[i][6], rows[i][7], rows[i][11], rows[i][8], rows[i][9], rows[i][12])
+                        puntsinteresArray.push(atraccio)
                     }
                     if (rows[i][3] == "Museu") {
                         museu = new Museu(1, false, rows[i][2], rows[i][4], rows[i][5], rows[i][3], rows[i][6], rows[i][7], rows[i][11], rows[i][8], rows[i][9], rows[i][10], rows[i][12])
+                        puntsinteresArray.push(museu)
                     }
                 }
                 //Renderitzem els objectes en la pagina
-                renderitzarPuntsinteres(espai, atraccio, museu)
+                renderitzarPuntsinteres(puntsinteresArray[1], puntsinteresArray[0], puntsinteresArray[2])
             };
             reader.readAsText(file);
         } else {
