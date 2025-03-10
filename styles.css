@@ -16,6 +16,8 @@ body{
     flex-direction: column;
     align-items: center;
     border: 1px solid black;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 #draganddrop{
     height: 60px;

@@ -27,7 +27,7 @@ class Atraccio extends Puntinteres {
     }
 
     getPreuIva() {
-        return this.preu*1+this.preu*0.24;
+        return this.preu * 1 + this.preu * 0.24;
     }
 }
 
@@ -41,7 +41,7 @@ class Museu extends Puntinteres {
     }
 
     getPreuIva() {
-        return this.preu*1+this.preu*0.24;
+        return this.preu * 1 + this.preu * 0.24;
     }
 }
 
@@ -59,8 +59,8 @@ class Mapa {
     mostrarPunt(latitud, longitud, nombre, direccio, puntuacio) {
         L.marker([latitud, longitud]).addTo(this.map).bindPopup(nombre + " " + direccio + " " + puntuacio).openPopup();
     }
-    borrarPunt(latitud,longitud) {
-        removeMarker(latitud,longitud,this.mapa)
+    borrarPunt(latitud, longitud) {
+        removeMarker(latitud, longitud, this.mapa)
     }
     getPosicioActual() {
         if (navigator.geolocation) {
@@ -146,23 +146,23 @@ const loadfile = function (files) {
 
                     }
                 })
-                //Creacio dels objectes espai atraccio i museu
+                //Creacio dels objectes espai atraccio i museu i els afegim a l'array
                 for (let i = 0; i < rows.length; i++) {
                     if (rows[i][3] == "Espai") {
-                        espai = new Puntinteres(1, false, rows[i][2], rows[i][4], rows[i][5], rows[i][3], rows[i][6], rows[i][7], rows[i][11])
+                        espai = new Puntinteres(i, false, rows[i][2], rows[i][4], rows[i][5], rows[i][3], rows[i][6], rows[i][7], rows[i][11])
                         puntsinteresArray.push(espai)
                     }
                     if (rows[i][3] == "Atraccio") {
-                        atraccio = new Atraccio(1, false, rows[i][2], rows[i][4], rows[i][5], rows[i][3], rows[i][6], rows[i][7], rows[i][11], rows[i][8], rows[i][9], rows[i][12])
+                        atraccio = new Atraccio(i, false, rows[i][2], rows[i][4], rows[i][5], rows[i][3], rows[i][6], rows[i][7], rows[i][11], rows[i][8], rows[i][9], rows[i][12])
                         puntsinteresArray.push(atraccio)
                     }
                     if (rows[i][3] == "Museu") {
-                        museu = new Museu(1, false, rows[i][2], rows[i][4], rows[i][5], rows[i][3], rows[i][6], rows[i][7], rows[i][11], rows[i][8], rows[i][9], rows[i][10], rows[i][12])
+                        museu = new Museu(i, false, rows[i][2], rows[i][4], rows[i][5], rows[i][3], rows[i][6], rows[i][7], rows[i][11], rows[i][8], rows[i][9], rows[i][10], rows[i][12])
                         puntsinteresArray.push(museu)
                     }
                 }
                 //Renderitzem els objectes en la pagina
-                renderitzarPuntsinteres(puntsinteresArray[1], puntsinteresArray[0], puntsinteresArray[2])
+                renderitzarPuntsinteres(espai, atraccio, museu)
             };
             reader.readAsText(file);
         } else {
@@ -172,7 +172,7 @@ const loadfile = function (files) {
 }
 //Funció que renderitza els punts d'interés tant a la part lateral com posar els punts al mapa amb la funcio mapa.mostrarpunt
 function renderitzarPuntsinteres(espai, atraccio, museu) {
-    let total =0;
+    let total = 0;
     const divResult = document.getElementById("llocsinteres")
     divResult.innerHTML = ""
     if (espai) {
@@ -186,7 +186,7 @@ function renderitzarPuntsinteres(espai, atraccio, museu) {
             let aux = confirm("Estas segur que vols borrar el punt d'interés?")
             if (aux) {
                 renderitzarPuntsinteres(null, atraccio, museu)
-                mapa.borrarPunt(espai.latitud,espai.longitud)
+                mapa.borrarPunt(espai.latitud, espai.longitud)
             }
         })
         divEspai.appendChild(botodel)
@@ -206,7 +206,7 @@ function renderitzarPuntsinteres(espai, atraccio, museu) {
             let aux = confirm("Estas segur que vols borrar el punt d'interés?")
             if (aux) {
                 renderitzarPuntsinteres(espai, null, museu)
-                mapa.borrarPunt(atraccio.latitud,atraccio.longitud)
+                mapa.borrarPunt(atraccio.latitud, atraccio.longitud)
             }
         })
         divAtraccio.appendChild(btndel)
@@ -225,7 +225,7 @@ function renderitzarPuntsinteres(espai, atraccio, museu) {
             let aux = confirm("Estas segur que vols borrar el punt d'interés?")
             if (aux) {
                 renderitzarPuntsinteres(espai, atraccio, null)
-                mapa.borrarPunt(museu.latitud,museu.longitud)
+                mapa.borrarPunt(museu.latitud, museu.longitud)
             }
         })
         divMuseu.appendChild(butondel)
@@ -233,8 +233,83 @@ function renderitzarPuntsinteres(espai, atraccio, museu) {
         mapa.mostrarPunt(museu.latitud, museu.longitud, museu.nom, museu.direccio, museu.puntuacio)
         total++
     }
-    document.getElementById("total").textContent = "Numero Total = "+total;
+    document.getElementById("total").textContent = "Numero Total = " + total;
+    //Si en el CSV i han més de 3 punts es crida la seguent funció
+    if (puntsinteresArray.length > 3) {
+        renderitzar3omespuntsdinteres()
+    }
 }
+
+//Funcio per renderitzar més de 3 punts a la vegada
+function renderitzar3omespuntsdinteres() {
+    const divResult = document.getElementById("llocsinteres")
+    let total = 0;
+    divResult.innerHTML = ""
+    for (let i = 0; i < puntsinteresArray.length; i++) {
+        if (puntsinteresArray[i].tipus == "Espai") {
+            let espai = puntsinteresArray[i]
+            const divEspai = document.createElement("div")
+            divEspai.textContent = espai.nom + " | " + espai.ciutat + " | " + "Tipus: " + espai.tipus
+            divEspai.className = "espai"
+            const botodel = document.createElement("button")
+            botodel.textContent = "delete"
+            botodel.addEventListener("click", function () {
+                let aux = confirm("Estas segur que vols borrar el punt d'interés?")
+                if (aux) {
+                    puntsinteresArray.splice(1,i)
+                    renderitzar3omespuntsdinteres()
+                    mapa.borrarPunt(espai.latitud, espai.longitud)
+                }
+            })
+            divEspai.appendChild(botodel)
+            divResult.appendChild(divEspai)
+            mapa.mostrarPunt(espai.latitud, espai.longitud, espai.nom, espai.direccio, espai.puntuacio)
+            total++;
+        }
+        if (puntsinteresArray[i].tipus == "Atraccio") {
+            let atraccio = puntsinteresArray[i]
+            const divAtraccio = document.createElement("div")
+            divAtraccio.textContent = atraccio.nom + " | " + atraccio.ciutat + " | " + "Tipus: " + atraccio.tipus + " | " + "Horaris:" + atraccio.horaris + " Preu " + atraccio.getPreuIva() + "€"
+            divAtraccio.className = "atraccio"
+            const btndel = document.createElement("button")
+            btndel.textContent = "delete"
+            btndel.addEventListener("click", function () {
+                let aux = confirm("Estas segur que vols borrar el punt d'interés?")
+                if (aux) {
+                    puntsinteresArray.splice(1,i)
+                    renderitzar3omespuntsdinteres()
+                    mapa.borrarPunt(atraccio.latitud, atraccio.longitud)
+                }
+            })
+            divAtraccio.appendChild(btndel)
+            divResult.appendChild(divAtraccio)
+            mapa.mostrarPunt(atraccio.latitud, atraccio.longitud, atraccio.nom, atraccio.direccio, atraccio.puntuacio)
+            total++;
+        }
+        if (puntsinteresArray[i].tipus == "Museu") {
+            let museu = puntsinteresArray[i]
+            const divMuseu = document.createElement("div")
+            divMuseu.textContent = museu.nom + " | " + museu.ciutat + " | " + "Tipus: " + museu.tipus + " | " + "Horaris:" + museu.horaris + " Preu " + museu.getPreuIva() + "€" + " | Descripcio:" + museu.descripcio
+            divMuseu.className = "museu"
+            const butondel = document.createElement("button")
+            butondel.textContent = "delete"
+            butondel.addEventListener("click", function () {
+                let aux = confirm("Estas segur que vols borrar el punt d'interés?")
+                if (aux) {
+                    puntsinteresArray.splice(1,i)
+                    renderitzar3omespuntsdinteres()
+                    mapa.borrarPunt(museu.latitud, museu.longitud)
+                }
+            })
+            divMuseu.appendChild(butondel)
+            divResult.appendChild(divMuseu)
+            mapa.mostrarPunt(museu.latitud, museu.longitud, museu.nom, museu.direccio, museu.puntuacio)
+            total++;
+        }
+    }
+    document.getElementById("total").textContent = "Numero Total = " + total;
+}
+
 
 //Funcio auxiliar
 function removeMarker(lat, lng, map) {
@@ -249,33 +324,34 @@ function removeMarker(lat, lng, map) {
 }
 
 //Filtrem per tipus
-document.getElementById("Actualitzar").addEventListener("click",function(){
-    if(tipusespai.selected){
-        renderitzarPuntsinteres(espai,null,null)
+document.getElementById("Actualitzar").addEventListener("click", function () {
+    if (tipusespai.selected) {
+        renderitzarPuntsinteres(espai, null, null)
     }
-    if(tipusAtraccio.selected){
-        renderitzarPuntsinteres(null,atraccio,null)
+    if (tipusAtraccio.selected) {
+        renderitzarPuntsinteres(null, atraccio, null)
     }
-    if(tipusMuseu.selected){
-        renderitzarPuntsinteres(null,null,museu)
+    if (tipusMuseu.selected) {
+        renderitzarPuntsinteres(null, null, museu)
     }
-    if(document.getElementById("tots").selected){
-        renderitzarPuntsinteres(espai,atraccio,museu)
+    if (document.getElementById("tots").selected) {
+        renderitzarPuntsinteres(espai, atraccio, museu)
     }
 })
 
 //Ordenem ascendent o descendent
-document.getElementById("Ordenar").addEventListener("click",function(){
-    if(document.getElementById("asc").selected){
-        renderitzarPuntsinteresASC(espai,atraccio,museu)
+document.getElementById("Ordenar").addEventListener("click", function () {
+    if (document.getElementById("asc").selected) {
+        renderitzarPuntsinteresASC(espai, atraccio, museu)
     }
-    if(document.getElementById("desc").selected){
-        renderitzarPuntsinteresDesc(espai,atraccio,museu)        
+    if (document.getElementById("desc").selected) {
+        renderitzarPuntsinteresDesc(espai, atraccio, museu)
     }
 })
 
-document.getElementById("Netejar").addEventListener("click",function(){
+document.getElementById("Netejar").addEventListener("click", function () {
     document.getElementById("llocsinteres").innerHTML = ""
+    document.getElementById("total").textContent = "Numero Total = " + 0;
 })
 
 //Bandera del pais i latitud i longitud
@@ -288,13 +364,13 @@ fetch("https://restcountries.com/v3.1/alpha/ES")
         let latitud = dada[0].latlng[0]
         let longitud = dada[0].latlng[1]
     })
-    .catch(function(error){
+    .catch(function (error) {
         console.log(error)
     })
 
 //Renderitzar en Mode ASc
 function renderitzarPuntsinteresASC(espai, atraccio, museu) {
-    let total =0;
+    let total = 0;
     const divResult = document.getElementById("llocsinteres")
     divResult.innerHTML = ""
     if (museu) {
@@ -308,7 +384,7 @@ function renderitzarPuntsinteresASC(espai, atraccio, museu) {
             let aux = confirm("Estas segur que vols borrar el punt d'interés?")
             if (aux) {
                 renderitzarPuntsinteres(espai, atraccio, null)
-                mapa.borrarPunt(museu.latitud,museu.longitud)
+                mapa.borrarPunt(museu.latitud, museu.longitud)
             }
         })
         divMuseu.appendChild(butondel)
@@ -327,7 +403,7 @@ function renderitzarPuntsinteresASC(espai, atraccio, museu) {
             let aux = confirm("Estas segur que vols borrar el punt d'interés?")
             if (aux) {
                 renderitzarPuntsinteres(espai, null, museu)
-                mapa.borrarPunt(atraccio.latitud,atraccio.longitud)
+                mapa.borrarPunt(atraccio.latitud, atraccio.longitud)
             }
         })
         divAtraccio.appendChild(btndel)
@@ -346,7 +422,7 @@ function renderitzarPuntsinteresASC(espai, atraccio, museu) {
             let aux = confirm("Estas segur que vols borrar el punt d'interés?")
             if (aux) {
                 renderitzarPuntsinteres(null, atraccio, museu)
-                mapa.borrarPunt(espai.latitud,espai.longitud)
+                mapa.borrarPunt(espai.latitud, espai.longitud)
             }
         })
         divEspai.appendChild(botodel)
@@ -355,13 +431,13 @@ function renderitzarPuntsinteresASC(espai, atraccio, museu) {
         total++
     }
 
-    
-    
-    document.getElementById("total").textContent = "Numero Total = "+total;
+
+
+    document.getElementById("total").textContent = "Numero Total = " + total;
 }
 //Renderitzar en Mode Desc
 function renderitzarPuntsinteresDesc(espai, atraccio, museu) {
-    let total =0;
+    let total = 0;
     const divResult = document.getElementById("llocsinteres")
     divResult.innerHTML = ""
     if (espai) {
@@ -375,7 +451,7 @@ function renderitzarPuntsinteresDesc(espai, atraccio, museu) {
             let aux = confirm("Estas segur que vols borrar el punt d'interés?")
             if (aux) {
                 renderitzarPuntsinteres(null, atraccio, museu)
-                mapa.borrarPunt(espai.latitud,espai.longitud)
+                mapa.borrarPunt(espai.latitud, espai.longitud)
             }
         })
         divEspai.appendChild(botodel)
@@ -395,7 +471,7 @@ function renderitzarPuntsinteresDesc(espai, atraccio, museu) {
             let aux = confirm("Estas segur que vols borrar el punt d'interés?")
             if (aux) {
                 renderitzarPuntsinteres(espai, null, museu)
-                mapa.borrarPunt(atraccio.latitud,atraccio.longitud)
+                mapa.borrarPunt(atraccio.latitud, atraccio.longitud)
             }
         })
         divAtraccio.appendChild(btndel)
@@ -414,7 +490,7 @@ function renderitzarPuntsinteresDesc(espai, atraccio, museu) {
             let aux = confirm("Estas segur que vols borrar el punt d'interés?")
             if (aux) {
                 renderitzarPuntsinteres(espai, atraccio, null)
-                mapa.borrarPunt(museu.latitud,museu.longitud)
+                mapa.borrarPunt(museu.latitud, museu.longitud)
             }
         })
         divMuseu.appendChild(butondel)
@@ -422,5 +498,5 @@ function renderitzarPuntsinteresDesc(espai, atraccio, museu) {
         mapa.mostrarPunt(museu.latitud, museu.longitud, museu.nom, museu.direccio, museu.puntuacio)
         total++
     }
-    document.getElementById("total").textContent = "Numero Total = "+total;
+    document.getElementById("total").textContent = "Numero Total = " + total;
 }
