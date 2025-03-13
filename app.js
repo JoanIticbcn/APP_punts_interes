@@ -44,7 +44,7 @@ class Museu extends Puntinteres {
         return this.preu * 1 + this.preu * 0.24;
     }
 }
-
+//Classe mapa
 class Mapa {
     map;
     constructor(lat, lon) {
@@ -89,6 +89,8 @@ let atraccio;
 let museu;
 //Array dels punts d'interés
 let puntsinteresArray = new Array()
+//Copia de seguretat per a fer els canvis de ordenar i filtrar sense perdre les dades
+let copia = new Array()
 //Creem el set del Menu tipus
 let tipusSet = new Set();
 const menutipus = document.getElementById("tipus")
@@ -125,6 +127,11 @@ const loadfile = function (files) {
                 tipusSet.add(rows[1][3])
                 tipusSet.add(rows[2][3])
                 tipusSet.add(rows[3][3])
+                if(rows.length>3){
+                    for(let i=0;i<rows.length;i++){
+                        tipusSet.add(rows[i][3])
+                    }
+                }
                 tipusSet.forEach(value => {
                     if (value == "Espai") {
                         tipusespai = document.createElement("option")
@@ -151,14 +158,17 @@ const loadfile = function (files) {
                     if (rows[i][3] == "Espai") {
                         espai = new Puntinteres(i, false, rows[i][2], rows[i][4], rows[i][5], rows[i][3], rows[i][6], rows[i][7], rows[i][11])
                         puntsinteresArray.push(espai)
+                        copia.push(espai)
                     }
                     if (rows[i][3] == "Atraccio") {
                         atraccio = new Atraccio(i, false, rows[i][2], rows[i][4], rows[i][5], rows[i][3], rows[i][6], rows[i][7], rows[i][11], rows[i][8], rows[i][9], rows[i][12])
                         puntsinteresArray.push(atraccio)
+                        copia.push(atraccio)
                     }
                     if (rows[i][3] == "Museu") {
                         museu = new Museu(i, false, rows[i][2], rows[i][4], rows[i][5], rows[i][3], rows[i][6], rows[i][7], rows[i][11], rows[i][8], rows[i][9], rows[i][10], rows[i][12])
                         puntsinteresArray.push(museu)
+                        copia.push(museu);
                     }
                 }
                 //Renderitzem els objectes en la pagina
@@ -256,7 +266,7 @@ function renderitzar3omespuntsdinteres() {
             botodel.addEventListener("click", function () {
                 let aux = confirm("Estas segur que vols borrar el punt d'interés?")
                 if (aux) {
-                    puntsinteresArray.splice(1,i)
+                    puntsinteresArray.splice(i,1)
                     renderitzar3omespuntsdinteres()
                     mapa.borrarPunt(espai.latitud, espai.longitud)
                 }
@@ -276,7 +286,7 @@ function renderitzar3omespuntsdinteres() {
             btndel.addEventListener("click", function () {
                 let aux = confirm("Estas segur que vols borrar el punt d'interés?")
                 if (aux) {
-                    puntsinteresArray.splice(1,i)
+                    puntsinteresArray.splice(i,1)
                     renderitzar3omespuntsdinteres()
                     mapa.borrarPunt(atraccio.latitud, atraccio.longitud)
                 }
@@ -296,7 +306,7 @@ function renderitzar3omespuntsdinteres() {
             butondel.addEventListener("click", function () {
                 let aux = confirm("Estas segur que vols borrar el punt d'interés?")
                 if (aux) {
-                    puntsinteresArray.splice(1,i)
+                    puntsinteresArray.splice(i,1)
                     renderitzar3omespuntsdinteres()
                     mapa.borrarPunt(museu.latitud, museu.longitud)
                 }
@@ -323,32 +333,89 @@ function removeMarker(lat, lng, map) {
     });
 }
 
-//Filtrem per tipus
+//Filtrem per tipus depenen si hi han 3 o més punts de interes
 document.getElementById("Actualitzar").addEventListener("click", function () {
-    if (tipusespai.selected) {
-        renderitzarPuntsinteres(espai, null, null)
+    if(puntsinteresArray.length<=3){
+        if (tipusespai.selected) {
+            renderitzarPuntsinteres(espai, null, null)
+        }
+        if (tipusAtraccio.selected) {
+            renderitzarPuntsinteres(null, atraccio, null)
+        }
+        if (tipusMuseu.selected) {
+            renderitzarPuntsinteres(null, null, museu)
+        }
+        if (document.getElementById("tots").selected) {
+            renderitzarPuntsinteres(espai, atraccio, museu)
+        }
     }
-    if (tipusAtraccio.selected) {
-        renderitzarPuntsinteres(null, atraccio, null)
-    }
-    if (tipusMuseu.selected) {
-        renderitzarPuntsinteres(null, null, museu)
-    }
-    if (document.getElementById("tots").selected) {
-        renderitzarPuntsinteres(espai, atraccio, museu)
+    if(puntsinteresArray.length>3){
+        if (tipusespai.selected) {
+            for(let i=0;i<puntsinteresArray.length;i++){
+                if(puntsinteresArray[i].tipus=="Atraccio"){
+                    puntsinteresArray.splice(i,1)
+                }
+                if(puntsinteresArray[i].tipus=="Museu"){
+                    puntsinteresArray.splice(i,1)
+                }
+            }
+            renderitzar3omespuntsdinteres()
+            puntsinteresArray = copia;        
+        }
+        if (tipusAtraccio.selected) {
+            for(let i=0;i<puntsinteresArray.length;i++){
+                if(puntsinteresArray[i].tipus=="Espai"){
+                    puntsinteresArray.splice(i,1)
+                }
+                if(puntsinteresArray[i].tipus=="Museu"){
+                    puntsinteresArray.splice(i,1)
+                }
+            }
+            renderitzar3omespuntsdinteres()
+            puntsinteresArray = copia;
+        }
+        if (tipusMuseu.selected) {
+            for(let i=0;i<puntsinteresArray.length;i++){
+                if(puntsinteresArray[i].tipus=="Atraccio"){
+                    puntsinteresArray.splice(i,1)
+                }
+                if(puntsinteresArray[i].tipus=="Espai"){
+                    puntsinteresArray.splice(i,1)
+                }
+            }
+            renderitzar3omespuntsdinteres()
+            puntsinteresArray = copia;
+        }
+        if (document.getElementById("tots").selected) {
+            renderitzar3omespuntsdinteres()
+        }
     }
 })
 
-//Ordenem ascendent o descendent
+//Ordenem ascendent o descendent depenent si  hi han 3 o més punt d'interes ho fem amb arrays
 document.getElementById("Ordenar").addEventListener("click", function () {
-    if (document.getElementById("asc").selected) {
-        renderitzarPuntsinteresASC(espai, atraccio, museu)
+    if(puntsinteresArray.length<=3){
+        if (document.getElementById("asc").selected) {
+            renderitzarPuntsinteresASC(espai, atraccio, museu)
+        }
+        if (document.getElementById("desc").selected) {
+            renderitzarPuntsinteresDesc(espai, atraccio, museu)
+        }
     }
-    if (document.getElementById("desc").selected) {
-        renderitzarPuntsinteresDesc(espai, atraccio, museu)
+    if(puntsinteresArray.length>3){
+        if (document.getElementById("asc").selected) {
+            puntsinteresArray.sort((a,b)=>a.nom.localeCompare(b.nom))
+            renderitzar3omespuntsdinteres()
+            puntsinteresArray = copia;
+        }
+        if (document.getElementById("desc").selected) {
+            puntsinteresArray.sort((a,b)=>b.nom.localeCompare(a.nom))
+            renderitzar3omespuntsdinteres()
+            puntsinteresArray = copia;
+        }
     }
 })
-
+//Funcio del boto netejar tota la taula
 document.getElementById("Netejar").addEventListener("click", function () {
     document.getElementById("llocsinteres").innerHTML = ""
     document.getElementById("total").textContent = "Numero Total = " + 0;
