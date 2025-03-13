@@ -26,7 +26,7 @@ body{
     justify-content: center;
     align-items: center;
 }
-#map { height: 700px;width: 80%;}
+#map { height: 700px;width: 73%;}
 .espai{
     border: 1px solid black;
     background-color: cyan;

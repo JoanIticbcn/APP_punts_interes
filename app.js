@@ -110,6 +110,9 @@ dropzone.addEventListener("drop", function (event) {
 let tipusespai;
 let tipusAtraccio;
 let tipusMuseu;
+//CodiPais
+let CodiPais;
+
 //Carreguem i llegim el fitxer CSV
 const loadfile = function (files) {
     if (files && files.length > 0) {
@@ -123,6 +126,8 @@ const loadfile = function (files) {
                 const text = event.target.result;
                 const rows = text.split("\n").map(row => row.split(";"));
                 console.log("Parsed CSV:", rows);
+                //Assignem el codi del pais
+                CodiPais = rows[1][1]
                 //Creem els elements del Menu tipus
                 tipusSet.add(rows[1][3])
                 tipusSet.add(rows[2][3])
@@ -415,13 +420,35 @@ document.getElementById("Ordenar").addEventListener("click", function () {
         }
     }
 })
+
+//Funcio per a buscar per text
+document.getElementById("Buscar").addEventListener("click",function(){
+    if(puntsinteresArray.length<=3){
+        let valor = document.getElementById("filtrapertext").value
+        if(espai.nom == valor){
+            renderitzarPuntsinteres(espai,null,null)
+        }
+        if(atraccio.nom == valor){
+            renderitzarPuntsinteres(null,atraccio,null)
+        }
+        if(museu.nom == valor){
+            renderitzarPuntsinteres(null,null,museu)
+        }
+
+    }
+    if(puntsinteresArray.length>3){
+        let valor = document.getElementById("filtrapertext").value
+
+    }
+})
+
 //Funcio del boto netejar tota la taula
 document.getElementById("Netejar").addEventListener("click", function () {
     document.getElementById("llocsinteres").innerHTML = ""
     document.getElementById("total").textContent = "Numero Total = " + 0;
 })
 
-//Bandera del pais i latitud i longitud
+//Bandera del pais i latitud i longitud per al punt
 fetch("https://restcountries.com/v3.1/alpha/ES")
     .then(function (response) {
         return response.json()
@@ -435,7 +462,7 @@ fetch("https://restcountries.com/v3.1/alpha/ES")
         console.log(error)
     })
 
-//Renderitzar en Mode ASc
+//Renderitzar en Mode ASc per a nomes 3 punts d'interes
 function renderitzarPuntsinteresASC(espai, atraccio, museu) {
     let total = 0;
     const divResult = document.getElementById("llocsinteres")
@@ -502,7 +529,7 @@ function renderitzarPuntsinteresASC(espai, atraccio, museu) {
 
     document.getElementById("total").textContent = "Numero Total = " + total;
 }
-//Renderitzar en Mode Desc
+//Renderitzar en Mode Desc per a 3 punts d'interes
 function renderitzarPuntsinteresDesc(espai, atraccio, museu) {
     let total = 0;
     const divResult = document.getElementById("llocsinteres")
