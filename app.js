@@ -438,7 +438,13 @@ document.getElementById("Buscar").addEventListener("click",function(){
     }
     if(puntsinteresArray.length>3){
         let valor = document.getElementById("filtrapertext").value
-
+        for(let i=0;i<puntsinteresArray.length;i++){
+            if(puntsinteresArray[i].nom!=valor){
+                puntsinteresArray.splice(i,1)
+            }
+        }
+        renderitzar3omespuntsdinteres()
+        puntsinteresArray = copia;
     }
 })
 
