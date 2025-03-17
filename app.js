@@ -128,7 +128,7 @@ const loadfile = function (files) {
                 console.log("Parsed CSV:", rows);
                 //Assignem el codi del pais
                 CodiPais = rows[1][1]
-                //Creem els elements del Menu tipus
+                //Creem els elements del Menu tipus amb un Set en funcio de si hi han 3 o més registres
                 tipusSet.add(rows[1][3])
                 tipusSet.add(rows[2][3])
                 tipusSet.add(rows[3][3])
@@ -158,7 +158,7 @@ const loadfile = function (files) {
 
                     }
                 })
-                //Creacio dels objectes espai atraccio i museu i els afegim a l'array
+                //Creacio dels objectes espai atraccio i museu i els afegim a l'array, també fem una copia de seguretat
                 for (let i = 0; i < rows.length; i++) {
                     if (rows[i][3] == "Espai") {
                         espai = new Puntinteres(i, false, rows[i][2], rows[i][4], rows[i][5], rows[i][3], rows[i][6], rows[i][7], rows[i][11])
@@ -176,7 +176,7 @@ const loadfile = function (files) {
                         copia.push(museu);
                     }
                 }
-                //Renderitzem els objectes en la pagina
+                //Renderitzem els objectes en la pagina si hi han més de 3 al final de la funció es cridara la funcio renderitzar3omespuntsdinteres
                 renderitzarPuntsinteres(espai, atraccio, museu)
             };
             reader.readAsText(file);
@@ -249,7 +249,7 @@ function renderitzarPuntsinteres(espai, atraccio, museu) {
         total++
     }
     document.getElementById("total").textContent = "Numero Total = " + total;
-    //Si en el CSV i han més de 3 punts es crida la seguent funció
+    //Si en el CSV i han més de 3 punts es crida la seguent funció per a renderitzar-ho amb l'array
     if (puntsinteresArray.length > 3) {
         renderitzar3omespuntsdinteres()
     }
@@ -326,7 +326,7 @@ function renderitzar3omespuntsdinteres() {
 }
 
 
-//Funcio auxiliar
+//Funcio auxiliar per borrar els punts del mapa
 function removeMarker(lat, lng, map) {
     map.eachLayer(function (layer) {
         if (layer instanceof L.Marker) {
@@ -340,6 +340,7 @@ function removeMarker(lat, lng, map) {
 
 //Filtrem per tipus depenen si hi han 3 o més punts de interes
 document.getElementById("Actualitzar").addEventListener("click", function () {
+    //Si hi han menys de tres
     if(puntsinteresArray.length<=3){
         if (tipusespai.selected) {
             renderitzarPuntsinteres(espai, null, null)
@@ -354,9 +355,11 @@ document.getElementById("Actualitzar").addEventListener("click", function () {
             renderitzarPuntsinteres(espai, atraccio, museu)
         }
     }
+    //Si hi han més de 3 punts d'interes
     if(puntsinteresArray.length>3){
         if (tipusespai.selected) {
-            for(let i=0;i<puntsinteresArray.length;i++){
+            let length = puntsinteresArray.length
+            for(let i=0;i<length;i++){
                 if(puntsinteresArray[i].tipus=="Atraccio"){
                     puntsinteresArray.splice(i,1)
                 }
@@ -368,7 +371,8 @@ document.getElementById("Actualitzar").addEventListener("click", function () {
             puntsinteresArray = copia;        
         }
         if (tipusAtraccio.selected) {
-            for(let i=0;i<puntsinteresArray.length;i++){
+            let length = puntsinteresArray.length
+            for(let i=0;i<length;i++){
                 if(puntsinteresArray[i].tipus=="Espai"){
                     puntsinteresArray.splice(i,1)
                 }
@@ -380,7 +384,8 @@ document.getElementById("Actualitzar").addEventListener("click", function () {
             puntsinteresArray = copia;
         }
         if (tipusMuseu.selected) {
-            for(let i=0;i<puntsinteresArray.length;i++){
+            let length = puntsinteresArray.length
+            for(let i=0;i<length;i++){
                 if(puntsinteresArray[i].tipus=="Atraccio"){
                     puntsinteresArray.splice(i,1)
                 }
@@ -397,7 +402,7 @@ document.getElementById("Actualitzar").addEventListener("click", function () {
     }
 })
 
-//Ordenem ascendent o descendent depenent si  hi han 3 o més punt d'interes ho fem amb arrays
+//Ordenem ascendent o descendent depenent si  hi han 3 o més punt d'interes ho fem amb arrays i amb el sort i el localecompare
 document.getElementById("Ordenar").addEventListener("click", function () {
     if(puntsinteresArray.length<=3){
         if (document.getElementById("asc").selected) {
@@ -438,7 +443,8 @@ document.getElementById("Buscar").addEventListener("click",function(){
     }
     if(puntsinteresArray.length>3){
         let valor = document.getElementById("filtrapertext").value
-        for(let i=0;i<puntsinteresArray.length;i++){
+        let length = puntsinteresArray.length
+        for(let i=0;i<length;i++){
             if(puntsinteresArray[i].nom!=valor){
                 puntsinteresArray.splice(i,1)
             }
@@ -448,7 +454,7 @@ document.getElementById("Buscar").addEventListener("click",function(){
     }
 })
 
-//Funcio del boto netejar tota la taula
+//Funcio del boto netejar tota la taula de punts d'interes
 document.getElementById("Netejar").addEventListener("click", function () {
     document.getElementById("llocsinteres").innerHTML = ""
     document.getElementById("total").textContent = "Numero Total = " + 0;
