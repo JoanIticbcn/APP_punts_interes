@@ -443,12 +443,7 @@ document.getElementById("Buscar").addEventListener("click",function(){
     }
     if(puntsinteresArray.length>3){
         let valor = document.getElementById("filtrapertext").value
-        let length = puntsinteresArray.length
-        for(let i=0;i<length;i++){
-            if(puntsinteresArray[i].nom!=valor){
-                puntsinteresArray.splice(i,1)
-            }
-        }
+        puntsinteresArray = puntsinteresArray.filter((item) => item.nom==valor)
         renderitzar3omespuntsdinteres()
         puntsinteresArray = copia;
     }
